@@ -176,20 +176,30 @@ async function xGet<T>(endpoint: string, params: Record<string, string>): Promis
         lastErr = axErr;
         continue;
       }
+      console.error(`[X API] Error ${status}:`, JSON.stringify(axErr.response?.data || axErr.message));
       throw axErr;
     }
   }
   throw lastErr || new Error("Max retries exceeded");
 }
 
+// Format date as strict RFC3339 UTC (no milliseconds, Z suffix)
+function toRFC3339(date: Date): string {
+  return date.toISOString().replace(/\.\d{3}Z$/, "Z");
+}
+
 // Public API functions
 
 export async function getMentionCount(keyword: string, days: number): Promise<MentionCountResult> {
   const now = new Date();
-  const start = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-  // X API counts/recent only goes back 7 days
-  const startTime = start.toISOString();
-  const endTime = now.toISOString();
+  // X API recent endpoint only goes back 7 days. Use 6d23h buffer for safety.
+  const maxMs = (6 * 24 + 23) * 60 * 60 * 1000;
+  const requestedMs = days * 24 * 60 * 60 * 1000;
+  const start = new Date(now.getTime() - Math.min(requestedMs, maxMs));
+  const startTime = toRFC3339(start);
+  const endTime = toRFC3339(new Date(now.getTime() - 10000)); // 10s buffer to ensure end < now
+
+  console.log(`[X API] Params: query="${keyword}", start_time=${startTime}, end_time=${endTime}`);
 
   const data = await xGet<{
     data: Array<{ start: string; end: string; tweet_count: number }>;
