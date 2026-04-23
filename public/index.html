@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPick Oracle</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+  <div class="topbar">
+    <h1>OPick Oracle</h1>
+    <p class="subtitle">Attention Market Validation</p>
+  </div>
+
+  <div class="card hero-card" id="hero">
+    <div class="hero-grid">
+      <div class="hero-col">
+        <p class="hero-name">Elon Musk</p>
+        <div id="musk-score" class="hero-score green"><div class="skeleton skeleton-score"></div></div>
+        <p class="hero-meta" id="musk-meta"><div class="skeleton skeleton-meta"></div></p>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-col">
+        <p class="hero-name">Sam Altman</p>
+        <div id="altman-score" class="hero-score red"><div class="skeleton skeleton-score"></div></div>
+        <p class="hero-meta" id="altman-meta"><div class="skeleton skeleton-meta"></div></p>
+      </div>
+    </div>
+    <div class="ratio-bar-wrap">
+      <div class="ratio-bar">
+        <div class="ratio-fill-green" id="ratio-green" style="width: 50%"></div>
+        <div class="ratio-fill-red" id="ratio-red" style="width: 50%"></div>
+      </div>
+      <p class="ratio-label" id="ratio-label">Loading...</p>
+    </div>
+  </div>
+
+  <div class="card chart-card">
+    <p class="chart-header">Last 24 hours</p>
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+    <div class="chart-legend">
+      <div class="chart-legend-item"><div class="legend-dot green"></div> Elon Musk</div>
+      <div class="chart-legend-item"><div class="legend-dot red"></div> Sam Altman</div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div>Today's API cost: <span class="mono" id="cost">$0.000</span></div>
+    <div class="center">Last update: <span class="mono" id="last-update">--:--:--</span></div>
+    <div class="right">Next poll in <span class="mono" id="countdown">--m --s</span></div>
+  </div>
+
+  <script src="/dashboard.js"></script>
+</body>
+</html>
