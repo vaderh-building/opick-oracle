@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPick Oracle · Markets</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>OPick Oracle</h1>
+      <p class="subtitle">Markets</p>
+    </div>
+    <nav class="topnav">
+      <a href="/" class="navlink">Overview</a>
+      <a href="/markets.html" class="navlink active">Markets</a>
+      <a href="/settlements.html" class="navlink">Settlements</a>
+    </nav>
+  </div>
+
+  <div class="card section-card">
+    <p class="section-header">All Markets</p>
+    <div class="table-wrap">
+      <table class="data-table" id="all-markets">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Metric</th>
+            <th>Keywords</th>
+            <th>State</th>
+            <th>Open</th>
+            <th>Close</th>
+            <th class="num">valueA</th>
+            <th class="num">valueB</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+        <tbody id="all-markets-body"><tr><td colspan="10" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="/markets.js"></script>
+</body>
+</html>

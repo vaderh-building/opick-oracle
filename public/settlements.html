@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPick Oracle · Settlements</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>OPick Oracle</h1>
+      <p class="subtitle">Settlements</p>
+    </div>
+    <nav class="topnav">
+      <a href="/" class="navlink">Overview</a>
+      <a href="/markets.html" class="navlink">Markets</a>
+      <a href="/settlements.html" class="navlink active">Settlements</a>
+    </nav>
+  </div>
+
+  <div class="card section-card">
+    <p class="section-header">Settlement Log</p>
+    <div class="table-wrap">
+      <table class="data-table" id="table">
+        <thead>
+          <tr>
+            <th>Log ID</th>
+            <th>Market</th>
+            <th>Status</th>
+            <th class="num">valueA</th>
+            <th class="num">valueB</th>
+            <th>Attempted</th>
+            <th>Mined</th>
+            <th>Tx</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"><tr><td colspan="9" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function fmtDate(sec){ if(!sec) return "..."; return new Date(sec*1000).toLocaleString(); }
+    function fmtBig(v){ if(v==null) return "..."; try{return BigInt(v).toString();}catch{return String(v);} }
+    function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];}); }
+
+    async function load() {
+      var body = document.getElementById("tbody");
+      try {
+        var r = await fetch("/api/settlements?limit=500");
+        var data = await r.json();
+        if (!data.settlements || !data.settlements.length) {
+          body.innerHTML = '<tr><td colspan="9" class="empty">No settlements recorded.</td></tr>';
+          return;
+        }
+        body.innerHTML = data.settlements.map(function(s) {
+          var statusClass = "badge-status-" + s.status;
+          var tx = s.tx_hash
+            ? '<a class="mono" target="_blank" rel="noreferrer" href="https://basescan.org/tx/' + s.tx_hash + '">' + s.tx_hash.slice(0,12) + '...</a>'
+            : '<span class="mono muted">pending</span>';
+          return (
+            '<tr>' +
+              '<td class="mono">' + s.id + '</td>' +
+              '<td class="mono">#' + s.market_id + '</td>' +
+              '<td><span class="badge ' + statusClass + '">' + s.status + '</span></td>' +
+              '<td class="num mono">' + fmtBig(s.value_a) + '</td>' +
+              '<td class="num mono">' + fmtBig(s.value_b) + '</td>' +
+              '<td class="mono">' + fmtDate(s.attempted_at) + '</td>' +
+              '<td class="mono">' + fmtDate(s.mined_at) + '</td>' +
+              '<td>' + tx + '</td>' +
+              '<td class="muted">' + escapeHtml(s.error_message || "") + '</td>' +
+            '</tr>'
+          );
+        }).join("");
+      } catch (e) {
+        body.innerHTML = '<tr><td colspan="9" class="empty">Failed to load.</td></tr>';
+      }
+    }
+
+    function connectWS() {
+      var proto = location.protocol === "https:" ? "wss:" : "ws:";
+      var ws = new WebSocket(proto + "//" + location.host + "/ws");
+      ws.onmessage = function(evt){
+        try {
+          var msg = JSON.parse(evt.data);
+          if (msg.type && msg.type.indexOf("settlement:") === 0) load();
+        } catch {}
+      };
+      ws.onclose = function(){ setTimeout(connectWS, 3000); };
+    }
+    load();
+    connectWS();
+    setInterval(load, 30000);
+  </script>
+</body>
+</html>

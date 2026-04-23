@@ -9,8 +9,15 @@
 </head>
 <body>
   <div class="topbar">
-    <h1>OPick Oracle</h1>
-    <p class="subtitle">Attention Market Validation</p>
+    <div class="topbar-left">
+      <h1>OPick Oracle</h1>
+      <p class="subtitle">Attention Market Oracle</p>
+    </div>
+    <nav class="topnav">
+      <a href="/" class="navlink active">Overview</a>
+      <a href="/markets.html" class="navlink">Markets</a>
+      <a href="/settlements.html" class="navlink">Settlements</a>
+    </nav>
   </div>
 
   <div class="card hero-card" id="hero">
@@ -18,13 +25,13 @@
       <div class="hero-col">
         <p class="hero-name">Elon Musk</p>
         <div id="musk-score" class="hero-score green"><div class="skeleton skeleton-score"></div></div>
-        <p class="hero-meta" id="musk-meta"><div class="skeleton skeleton-meta"></div></p>
+        <p class="hero-meta" id="musk-meta"><span class="skeleton skeleton-meta"></span></p>
       </div>
       <div class="hero-divider"></div>
       <div class="hero-col">
         <p class="hero-name">Sam Altman</p>
         <div id="altman-score" class="hero-score red"><div class="skeleton skeleton-score"></div></div>
-        <p class="hero-meta" id="altman-meta"><div class="skeleton skeleton-meta"></div></p>
+        <p class="hero-meta" id="altman-meta"><span class="skeleton skeleton-meta"></span></p>
       </div>
     </div>
     <div class="ratio-bar-wrap">
@@ -44,6 +51,93 @@
     <div class="chart-legend">
       <div class="chart-legend-item"><div class="legend-dot green"></div> Elon Musk</div>
       <div class="chart-legend-item"><div class="legend-dot red"></div> Sam Altman</div>
+    </div>
+  </div>
+
+  <div class="card section-card">
+    <p class="section-header">Tracked Markets</p>
+    <div class="table-wrap">
+      <table class="data-table" id="markets-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Metric</th>
+            <th>Keywords</th>
+            <th>State</th>
+            <th>Close</th>
+            <th class="num">valueA</th>
+            <th class="num">valueB</th>
+          </tr>
+        </thead>
+        <tbody id="markets-body"><tr><td colspan="8" class="empty">No markets tracked yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card section-card">
+    <p class="section-header">Upcoming Settlements</p>
+    <div class="table-wrap">
+      <table class="data-table" id="upcoming-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Keywords</th>
+            <th>State</th>
+            <th>Close</th>
+            <th>Countdown</th>
+          </tr>
+        </thead>
+        <tbody id="upcoming-body"><tr><td colspan="5" class="empty">No settlements due in the next 24h.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card section-card">
+    <p class="section-header">Recent Settlement Log</p>
+    <div class="table-wrap">
+      <table class="data-table" id="settlements-table">
+        <thead>
+          <tr>
+            <th>Market</th>
+            <th>Status</th>
+            <th class="num">valueA</th>
+            <th class="num">valueB</th>
+            <th>Attempted</th>
+            <th>Tx</th>
+          </tr>
+        </thead>
+        <tbody id="settlements-body"><tr><td colspan="6" class="empty">No settlements yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card health-card">
+    <div class="health-grid">
+      <div class="health-item">
+        <p class="health-label">Oracle</p>
+        <p class="health-value mono" id="health-oracle">...</p>
+      </div>
+      <div class="health-item">
+        <p class="health-label">Block</p>
+        <p class="health-value mono" id="health-block">...</p>
+      </div>
+      <div class="health-item">
+        <p class="health-label">Last market sync</p>
+        <p class="health-value mono" id="health-market">...</p>
+      </div>
+      <div class="health-item">
+        <p class="health-label">Last metric poll</p>
+        <p class="health-value mono" id="health-metric">...</p>
+      </div>
+      <div class="health-item">
+        <p class="health-label">Last settlement check</p>
+        <p class="health-value mono" id="health-settle">...</p>
+      </div>
+      <div class="health-item">
+        <p class="health-label">Pending settlements</p>
+        <p class="health-value mono" id="health-pending">...</p>
+      </div>
     </div>
   </div>
 
