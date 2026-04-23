@@ -28,8 +28,21 @@ export const ORACLE_SIGNER_PRIVATE_KEY = str("ORACLE_SIGNER_PRIVATE_KEY");
 export const AUDIT_HMAC_KEY = str("AUDIT_HMAC_KEY");
 
 export const MARKET_SYNC_INTERVAL_MINUTES = num("MARKET_SYNC_INTERVAL_MINUTES", 5);
-export const METRIC_POLL_INTERVAL_MINUTES = num("METRIC_POLL_INTERVAL_MINUTES", 15);
 export const SETTLEMENT_CHECK_INTERVAL_MINUTES = num("SETTLEMENT_CHECK_INTERVAL_MINUTES", 10);
+
+// Metric poll schedule. Prefer cron; fall back to legacy minute-interval if the
+// old env var is set and the new cron is not. Default: 08:00 and 20:00 daily.
+const DEFAULT_METRIC_POLL_CRON = "0 8,20 * * *";
+const legacyMinutesRaw = process.env.METRIC_POLL_INTERVAL_MINUTES;
+const cronRaw = process.env.METRIC_POLL_CRON;
+export const METRIC_POLL_CRON: string =
+  cronRaw && cronRaw.trim()
+    ? cronRaw.trim()
+    : legacyMinutesRaw && legacyMinutesRaw.trim()
+      ? `*/${parseInt(legacyMinutesRaw, 10) || 15} * * * *`
+      : DEFAULT_METRIC_POLL_CRON;
+// Retain the minutes export for back-compat imports (used by legacy cost narration).
+export const METRIC_POLL_INTERVAL_MINUTES = num("METRIC_POLL_INTERVAL_MINUTES", 15);
 
 export const DASHBOARD_ENABLED = (process.env.DASHBOARD_ENABLED || "true").toLowerCase() !== "false";
 

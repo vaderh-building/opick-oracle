@@ -1,8 +1,52 @@
 // OPick Oracle Dashboard
 
-const POLL_MINUTES = 15;
 let lastUpdateTime = null;
 let chart = null;
+let pollCron = "0 8,20 * * *";
+
+// Parses a simple 5-field cron: minute hour dom month dow. Supports "*", "*/N",
+// comma lists, and numeric values. Returns the next Date at or after `from`.
+function nextCronFire(expr, from) {
+  const parts = (expr || "").trim().split(/\s+/);
+  if (parts.length !== 5) return null;
+  const fields = parts.map(function(p, i) {
+    const ranges = [[0,59],[0,23],[1,31],[1,12],[0,6]];
+    const [lo, hi] = ranges[i];
+    if (p === "*") return null; // null means any
+    const set = new Set();
+    p.split(",").forEach(function(tok) {
+      var m;
+      if ((m = tok.match(/^\*\/(\d+)$/))) {
+        const step = parseInt(m[1], 10);
+        for (let v = lo; v <= hi; v += step) set.add(v);
+      } else if ((m = tok.match(/^(\d+)-(\d+)(?:\/(\d+))?$/))) {
+        const a = parseInt(m[1], 10), b = parseInt(m[2], 10), s = m[3] ? parseInt(m[3], 10) : 1;
+        for (let v = a; v <= b; v += s) set.add(v);
+      } else if (/^\d+$/.test(tok)) {
+        set.add(parseInt(tok, 10));
+      }
+    });
+    return set;
+  });
+  function match(d) {
+    if (fields[0] && !fields[0].has(d.getMinutes())) return false;
+    if (fields[1] && !fields[1].has(d.getHours())) return false;
+    if (fields[2] && !fields[2].has(d.getDate())) return false;
+    if (fields[3] && !fields[3].has(d.getMonth() + 1)) return false;
+    if (fields[4] && !fields[4].has(d.getDay())) return false;
+    return true;
+  }
+  const start = new Date(from.getTime());
+  start.setSeconds(0, 0);
+  start.setMinutes(start.getMinutes() + 1);
+  // Cap scan at 366 days so we never loop forever on malformed input.
+  const maxIter = 366 * 24 * 60;
+  for (let i = 0; i < maxIter; i++) {
+    if (match(start)) return start;
+    start.setMinutes(start.getMinutes() + 1);
+  }
+  return null;
+}
 
 function fmt(n) {
   if (n == null || isNaN(n)) return "...";
@@ -109,12 +153,16 @@ function updateStatus(costToday) {
 }
 
 function tickCountdown() {
-  if (!lastUpdateTime) return;
-  const elapsed = (Date.now() - lastUpdateTime.getTime()) / 1000;
-  const remaining = Math.max(0, POLL_MINUTES * 60 - elapsed);
-  const m = Math.floor(remaining / 60);
-  const s = Math.floor(remaining % 60);
-  document.getElementById("countdown").textContent = m + "m " + s + "s";
+  const next = nextCronFire(pollCron, new Date());
+  if (!next) {
+    document.getElementById("countdown").textContent = "--";
+    return;
+  }
+  const remaining = Math.max(0, (next.getTime() - Date.now()) / 1000);
+  const h = Math.floor(remaining / 3600);
+  const m = Math.floor((remaining % 3600) / 60);
+  document.getElementById("countdown").textContent =
+    (h > 0 ? h + "h " : "") + m + "m";
 }
 
 function renderMarkets(markets) {
@@ -206,6 +254,7 @@ function renderOracle(status) {
   document.getElementById("health-metric").textContent = fmtTime(status.lastMetricPoll);
   document.getElementById("health-settle").textContent = fmtTime(status.lastSettlementCheck);
   document.getElementById("health-pending").textContent = status.pendingSettlements != null ? status.pendingSettlements : "0";
+  if (status.metricPollCron) pollCron = status.metricPollCron;
 }
 
 function escapeHtml(s) {

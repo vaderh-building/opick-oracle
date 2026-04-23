@@ -6,6 +6,7 @@ import { lastSettlementCheckAt, pendingSettlementsCount } from "../../services/s
 import {
   V6_FACTORY_ADDRESS,
   CHAIN_ID,
+  METRIC_POLL_CRON,
 } from "../../config";
 import { sendJson } from "../json";
 import { getPublicClient } from "../../oracle/contracts";
@@ -35,5 +36,6 @@ oracleRouter.get("/status", async (_req, res) => {
     lastMetricPoll: lastPollAt(),
     lastSettlementCheck: lastSettlementCheckAt(),
     pendingSettlements: pendingSettlementsCount(),
+    metricPollCron: METRIC_POLL_CRON,
   });
 });

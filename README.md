@@ -61,11 +61,14 @@ The diversity factor penalizes keywords where mentions come from a small number 
 
 ## Cost Estimates
 
-At 15 minute polling for 2 keywords:
-- 4 API calls per cycle (2 count, 2 search)
-- ~96 cycles per day
-- Estimated daily cost: ~$0.20
-- Estimated monthly cost: ~$6
+Default schedule: twice daily at 08:00 and 20:00 local (cron `0 8,20 * * *`). One startup fetch plus two scheduled polls, with four metric types computed per keyword per poll.
+
+- Two scheduled polls per day plus one on boot
+- Four metric computations per keyword per poll (shared X API cache within a cycle)
+- Estimated daily cost: ~$0.30
+- Estimated monthly cost: ~$9
+
+Override with `METRIC_POLL_CRON` in `.env`. The legacy `METRIC_POLL_INTERVAL_MINUTES` is still honored if `METRIC_POLL_CRON` is unset (back-compat for 15-minute polling, which costs ~$10-20/day). Settlement and market-sync schedules are separate and cheap (chain reads only).
 
 X pay per use pricing applies. Cap is 2M reads per month before Enterprise tier is needed. Cost counters persist to ./data/costs.json across restarts.
 

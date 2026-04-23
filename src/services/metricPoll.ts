@@ -9,7 +9,7 @@ import {
 } from "../db/schema";
 import { computeMetric, MetricResult } from "../metrics/compute";
 import {
-  METRIC_POLL_INTERVAL_MINUTES,
+  METRIC_POLL_CRON,
   TRACKED_KEYWORDS,
 } from "../config";
 import { emit } from "./bus";
@@ -124,14 +124,18 @@ export function getLatestByKeyword(keyword: string): MetricSnapshotRow[] {
 }
 
 export function startMetricPoll(): void {
-  console.log(
-    `[METRIC_POLL] Starting, every ${METRIC_POLL_INTERVAL_MINUTES} min`
-  );
+  console.log(`[METRIC_POLL] Starting, cron="${METRIC_POLL_CRON}"`);
+  // Always fetch once on startup so the dashboard has data before the first cron trigger.
   pollMetricsOnce().catch((err) =>
     console.error("[METRIC_POLL] initial poll error:", (err as Error).message)
   );
-  const expr = `*/${METRIC_POLL_INTERVAL_MINUTES} * * * *`;
-  cron.schedule(expr, async () => {
+  if (!cron.validate(METRIC_POLL_CRON)) {
+    console.error(
+      `[METRIC_POLL] invalid cron expression "${METRIC_POLL_CRON}"; scheduled polls disabled`
+    );
+    return;
+  }
+  cron.schedule(METRIC_POLL_CRON, async () => {
     try {
       const { computed, errors } = await pollMetricsOnce();
       console.log(`[METRIC_POLL] computed=${computed} errors=${errors}`);
