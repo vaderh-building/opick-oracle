@@ -25,16 +25,7 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-app.get("/api/attention/:keyword", (req, res) => {
-  const keyword = decodeURIComponent(req.params.keyword);
-  const score = getLatestScore(keyword);
-  const hist = getHistory(keyword);
-  if (!score) {
-    return res.status(404).json({ error: "Keyword not tracked" });
-  }
-  res.json({ score, history: hist });
-});
-
+// compare must be before :keyword so Express does not match "compare" as a keyword
 app.get("/api/attention/compare", (req, res) => {
   const a = String(req.query.a || "");
   const b = String(req.query.b || "");
@@ -54,6 +45,16 @@ app.get("/api/attention/compare", (req, res) => {
       b: getHistory(b),
     },
   });
+});
+
+app.get("/api/attention/:keyword", (req, res) => {
+  const keyword = decodeURIComponent(req.params.keyword);
+  const score = getLatestScore(keyword);
+  const hist = getHistory(keyword);
+  if (!score) {
+    return res.status(404).json({ error: "Keyword not tracked" });
+  }
+  res.json({ score, history: hist });
 });
 
 app.get("/api/costs", (_req, res) => {

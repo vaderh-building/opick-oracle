@@ -140,17 +140,18 @@ async function fetchInitial() {
       const data = await res.json();
       updateHero({ "Elon Musk": data.scoreA, "Sam Altman": data.scoreB });
       updateChart(data.history.a, data.history.b);
-      updateStatus(null);
+    } else {
+      console.log("Compare endpoint returned", res.status);
     }
   } catch (e) {
     console.log("Initial fetch failed, waiting for WebSocket:", e);
   }
-  // Also get cost
+  // Also get cost and set status
   try {
     const res = await fetch("/api/costs");
     if (res.ok) {
       const data = await res.json();
-      document.getElementById("cost").textContent = "$" + data.today.toFixed(3);
+      updateStatus(data.today);
     }
   } catch {}
 }
