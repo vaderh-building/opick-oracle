@@ -7,3 +7,4 @@ dist
 data/oracle.db
 data/oracle.db-shm
 data/oracle.db-wal
+output/
